@@ -27,6 +27,7 @@ module.exports = function (grunt) {
           'src/directives/*.js',
           'src/models/*.js',
           'src/controllers/*.js',
+          'src/js/angular-shapeshift.js',
           'template/dashboard.js'
         ],
         dest: 'dist/angular-ui-dashboard.js'

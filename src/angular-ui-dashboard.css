@@ -1,11 +1,19 @@
 .dashboard-widget-area {
     margin: 10px 0 30px;
     min-height: 200px;
+    position: relative;
+    width: 100%;
+}
+
+.dashboard-widget-area  .ss-placeholder-child {
+    position: absolute;
+    width: 33%;
+    background: transparent;
+    border: 1px dashed red;
 }
 
 .widget-container {
-    float:left;
-    display: inline-block;
+    position: absolute;
     width: 33%;
 }
 

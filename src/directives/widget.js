@@ -17,29 +17,29 @@
 'use strict';
 
 angular.module('ui.dashboard')
-  .directive('widget', function () {
+    .directive('widget', function () {
 
-    return {
+        return {
 
-      controller: 'DashboardWidgetCtrl',
+            controller: 'DashboardWidgetCtrl',
 
-      link: function (scope) {
+            link: function (scope) {
 
-        var widget = scope.widget;
-        // set up data source
-        if (widget.dataModelType) {
-          var ds = new widget.dataModelType();
-          widget.dataModel = ds;
-          ds.setup(widget, scope);
-          ds.init();
-          scope.$on('$destroy', _.bind(ds.destroy,ds));
-        }
+                var widget = scope.widget;
+                // set up data source
+                if (widget.dataModelType) {
+                    var ds = new widget.dataModelType();
+                    widget.dataModel = ds;
+                    ds.setup(widget, scope);
+                    ds.init();
+                    scope.$on('$destroy', _.bind(ds.destroy,ds));
+                }
 
-        // Compile the widget template, emit add event
-        scope.compileTemplate();
-        scope.$emit('widgetAdded', widget);
+                // Compile the widget template, emit add event
+                scope.compileTemplate();
+                scope.$emit('widgetAdded', widget);
 
-      }
+            }
 
-    };
-  });
+        };
+    });

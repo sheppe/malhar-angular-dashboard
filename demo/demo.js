@@ -19,186 +19,186 @@
 angular.module('app', [
     'ngRoute',
     'ui.dashboard'
-  ])
-  .config(function ($routeProvider) {
-    $routeProvider
-      .when('/', {
-        templateUrl: 'view.html',
-        controller: 'DemoCtrl'
-      })
-      .when('/explicit-saving', {
-        templateUrl: 'view.html',
-        controller: 'ExplicitSaveDemoCtrl'
-      })
-      .when('/layouts', {
-        templateUrl: 'layouts.html',
-        controller: 'LayoutsDemoCtrl'
-      })
-      .when('/layouts/explicit-saving', {
-        templateUrl: 'layouts.html',
-        controller: 'LayoutsDemoExplicitSaveCtrl'
-      })
-      .otherwise({
-        redirectTo: '/'
-      });
-  })
-  .factory('widgetDefinitions', function(RandomDataModel) {
-    return [
-      {
-        name: 'random',
-        directive: 'wt-scope-watch',
-        attrs: {
-          value: 'randomValue'
+])
+    .config(function ($routeProvider) {
+        $routeProvider
+            .when('/', {
+                templateUrl: 'view.html',
+                controller: 'DemoCtrl'
+            })
+            .when('/explicit-saving', {
+                templateUrl: 'view.html',
+                controller: 'ExplicitSaveDemoCtrl'
+            })
+            .when('/layouts', {
+                templateUrl: 'layouts.html',
+                controller: 'LayoutsDemoCtrl'
+            })
+            .when('/layouts/explicit-saving', {
+                templateUrl: 'layouts.html',
+                controller: 'LayoutsDemoExplicitSaveCtrl'
+            })
+            .otherwise({
+                redirectTo: '/'
+            });
+    })
+    .factory('widgetDefinitions', function(RandomDataModel) {
+        return [
+            {
+                name: 'random',
+                directive: 'wt-scope-watch',
+                attrs: {
+                    value: 'randomValue'
+                }
+            },
+            {
+                name: 'time',
+                directive: 'wt-time'
+            },
+            {
+                name: 'datamodel',
+                directive: 'wt-scope-watch',
+                dataAttrName: 'value',
+                dataModelType: RandomDataModel
+            }
+        ];
+    })
+    .value('defaultWidgets', [
+        { name: 'random' },
+        { name: 'time' },
+        { name: 'datamodel' },
+        {
+            name: 'random',
+            style: {
+                width: '50%'
+            }
+        },
+        {
+            name: 'time',
+            style: {
+                width: '100%'
+            }
         }
-      },
-      {
-        name: 'time',
-        directive: 'wt-time'
-      },
-      {
-        name: 'datamodel',
-        directive: 'wt-scope-watch',
-        dataAttrName: 'value',
-        dataModelType: RandomDataModel
-      }
-    ];
-  })
-  .value('defaultWidgets', [
-    { name: 'random' },
-    { name: 'time' },
-    { name: 'datamodel' },
-    {
-      name: 'random',
-      style: {
-        width: '50%'
-      }
-    },
-    {
-      name: 'time',
-      style: {
-        width: '50%'
-      }
-    }
-  ])
-  .controller('DemoCtrl', function ($scope, $interval, $window, widgetDefinitions, defaultWidgets) {
-    
-    $scope.dashboardOptions = {
-      widgetButtons: true,
-      widgetDefinitions: widgetDefinitions,
-      defaultWidgets: defaultWidgets,
-      storage: $window.localStorage,
-      storageId: 'demo'
-    };
-    $scope.randomValue = Math.random();
-    $interval(function () {
-      $scope.randomValue = Math.random();
-    }, 500);
-  })
-  .controller('ExplicitSaveDemoCtrl', function ($scope, $interval, $window, widgetDefinitions, defaultWidgets) {
+    ])
+    .controller('DemoCtrl', function ($scope, $interval, $window, widgetDefinitions, defaultWidgets) {
 
-    $scope.dashboardOptions = {
-      widgetButtons: true,
-      widgetDefinitions: widgetDefinitions,
-      defaultWidgets: defaultWidgets,
-      storage: $window.localStorage,
-      storageId: 'explicitSave',
-      explicitSave: true
-    };
-    $scope.randomValue = Math.random();
-    $interval(function () {
-      $scope.randomValue = Math.random();
-    }, 500);
-  })
-  .controller('LayoutsDemoCtrl', function($scope, widgetDefinitions, defaultWidgets, LayoutStorage, $interval) {
-    $scope.layoutOptions = {
-      storageId: 'demo-layouts',
-      storage: localStorage,
-      storageHash: 'fs4df4d51',
-      widgetDefinitions: widgetDefinitions,
-      defaultWidgets: defaultWidgets,
-      defaultLayouts: [
-        { title: 'Layout 1', active: true , defaultWidgets: defaultWidgets },
-        { title: 'Layout 2', active: false, defaultWidgets: defaultWidgets },
-        { title: 'Layout 3', active: false, defaultWidgets: defaultWidgets }
-      ]
-    };
-    $scope.randomValue = Math.random();
-    $interval(function () {
-      $scope.randomValue = Math.random();
-    }, 500);
+        $scope.dashboardOptions = {
+            widgetButtons: true,
+            widgetDefinitions: widgetDefinitions,
+            defaultWidgets: defaultWidgets,
+            storage: $window.localStorage,
+            storageId: 'demo'
+        };
+        $scope.randomValue = Math.random();
+        $interval(function () {
+            $scope.randomValue = Math.random();
+        }, 500);
+    })
+    .controller('ExplicitSaveDemoCtrl', function ($scope, $interval, $window, widgetDefinitions, defaultWidgets) {
 
-  })
-  .controller('LayoutsDemoExplicitSaveCtrl', function($scope, widgetDefinitions, defaultWidgets, LayoutStorage, $interval) {
+        $scope.dashboardOptions = {
+            widgetButtons: true,
+            widgetDefinitions: widgetDefinitions,
+            defaultWidgets: defaultWidgets,
+            storage: $window.localStorage,
+            storageId: 'explicitSave',
+            explicitSave: true
+        };
+        $scope.randomValue = Math.random();
+        $interval(function () {
+            $scope.randomValue = Math.random();
+        }, 500);
+    })
+    .controller('LayoutsDemoCtrl', function($scope, widgetDefinitions, defaultWidgets, LayoutStorage, $interval) {
+        $scope.layoutOptions = {
+            storageId: 'demo-layouts',
+            storage: localStorage,
+            storageHash: 'fs4df4d51',
+            widgetDefinitions: widgetDefinitions,
+            defaultWidgets: defaultWidgets,
+            defaultLayouts: [
+                { title: 'Layout 1', active: true , defaultWidgets: defaultWidgets },
+                { title: 'Layout 2', active: false, defaultWidgets: defaultWidgets },
+                { title: 'Layout 3', active: false, defaultWidgets: defaultWidgets }
+            ]
+        };
+        $scope.randomValue = Math.random();
+        $interval(function () {
+            $scope.randomValue = Math.random();
+        }, 500);
 
-    $scope.layoutOptions = {
-      storageId: 'demo-layouts',
-      storage: localStorage,
-      storageHash: 'fs4df4d51',
-      widgetDefinitions: widgetDefinitions,
-      defaultWidgets: defaultWidgets,
-      explicitSave: true,
-      defaultLayouts: [
-        { title: 'Layout 1', active: true , defaultWidgets: defaultWidgets },
-        { title: 'Layout 2', active: false, defaultWidgets: defaultWidgets },
-        { title: 'Layout 3', active: false, defaultWidgets: defaultWidgets }
-      ]
-    };
-    $scope.randomValue = Math.random();
-    $interval(function () {
-      $scope.randomValue = Math.random();
-    }, 500);
+    })
+    .controller('LayoutsDemoExplicitSaveCtrl', function($scope, widgetDefinitions, defaultWidgets, LayoutStorage, $interval) {
 
-  })
-  .directive('wtTime', function ($interval) {
-    return {
-      restrict: 'A',
-      scope: true,
-      replace: true,
-      template: '<div>Time<div class="alert alert-success">{{time}}</div></div>',
-      link: function (scope) {
-        function update() {
-          scope.time = new Date().toLocaleTimeString();
+        $scope.layoutOptions = {
+            storageId: 'demo-layouts',
+            storage: localStorage,
+            storageHash: 'fs4df4d51',
+            widgetDefinitions: widgetDefinitions,
+            defaultWidgets: defaultWidgets,
+            explicitSave: true,
+            defaultLayouts: [
+                { title: 'Layout 1', active: true , defaultWidgets: defaultWidgets },
+                { title: 'Layout 2', active: false, defaultWidgets: defaultWidgets },
+                { title: 'Layout 3', active: false, defaultWidgets: defaultWidgets }
+            ]
+        };
+        $scope.randomValue = Math.random();
+        $interval(function () {
+            $scope.randomValue = Math.random();
+        }, 500);
+
+    })
+    .directive('wtTime', function ($interval) {
+        return {
+            restrict: 'A',
+            scope: true,
+            replace: true,
+            template: '<div>Time<div class="alert alert-success">{{time}}</div></div>',
+            link: function (scope) {
+                function update() {
+                    scope.time = new Date().toLocaleTimeString();
+                }
+
+                update();
+
+                var promise = $interval(update, 500);
+
+                scope.$on('$destroy', function () {
+                    $interval.cancel(promise);
+                });
+            }
+        };
+    })
+    .directive('wtScopeWatch', function () {
+        return {
+            restrict: 'A',
+            replace: true,
+            template: '<div>Value<div class="alert alert-info">{{value}}</div></div>',
+            scope: {
+                value: '=value'
+            }
+        };
+    })
+    .factory('RandomDataModel', function ($interval, WidgetDataModel) {
+        function RandomDataModel() {
         }
 
-        update();
+        RandomDataModel.prototype = Object.create(WidgetDataModel.prototype);
 
-        var promise = $interval(update, 500);
+        RandomDataModel.prototype.init = function () {
+            this.updateScope('-');
+            this.intervalPromise = $interval(function () {
+                var value = Math.floor(Math.random() * 100);
+                this.updateScope(value);
+            }.bind(this), 500);
+        };
 
-        scope.$on('$destroy', function () {
-          $interval.cancel(promise);
-        });
-      }
-    };
-  })
-  .directive('wtScopeWatch', function () {
-    return {
-      restrict: 'A',
-      replace: true,
-      template: '<div>Value<div class="alert alert-info">{{value}}</div></div>',
-      scope: {
-        value: '=value'
-      }
-    };
-  })
-  .factory('RandomDataModel', function ($interval, WidgetDataModel) {
-    function RandomDataModel() {
-    }
+        RandomDataModel.prototype.destroy = function () {
+            WidgetDataModel.prototype.destroy.call(this);
+            $interval.cancel(this.intervalPromise);
+        };
 
-    RandomDataModel.prototype = Object.create(WidgetDataModel.prototype);
-
-    RandomDataModel.prototype.init = function () {
-      this.updateScope('-');
-      this.intervalPromise = $interval(function () {
-        var value = Math.floor(Math.random() * 100);
-        this.updateScope(value);
-      }.bind(this), 500);
-    };
-
-    RandomDataModel.prototype.destroy = function () {
-      WidgetDataModel.prototype.destroy.call(this);
-      $interval.cancel(this.intervalPromise);
-    };
-
-    return RandomDataModel;
-  });
+        return RandomDataModel;
+    });
 

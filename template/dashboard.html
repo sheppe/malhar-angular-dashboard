@@ -24,7 +24,7 @@
         <button ng-click="clear();" type="button" class="btn btn-info">Clear</button>
     </div>
 
-    <div ui-sortable="sortableOptions" ng-model="widgets" class="dashboard-widget-area">
+    <div ui-shapeshift="sortableOptions" ng-model="widgets" class="dashboard-widget-area">
         <div ng-repeat="widget in widgets" ng-style="widget.style" class="widget-container" widget>
             <div class="widget panel panel-default">
                 <div class="widget-header panel-heading">
