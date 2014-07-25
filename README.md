@@ -63,6 +63,7 @@ Requirements
 - Underscore.js
 - jQuery
 - jQuery UI
+- Lodash
 - jQuery-UI-Touch-Punch (optional, for touch support)
 - jQuery.Shapeshift
 
@@ -290,9 +291,11 @@ Links
 
 [AngularJS](http://angularjs.org/) JavaScript framework
 
-[ui-sortable](https://github.com/angular-ui/ui-sortable) AngularJS UI Sortable
+[jQuery-UI-Touch-Punch](http://touchpunch.furf.com/) jQuery-UI-Touch-Punch
 
-[jQuery UI Sortable](http://jqueryui.com/sortable/) jQuery UI Sortable plugin (reordering with drag and drop)
+[jQuery.Shapeshift](https://github.com/McPants/jquery.shapeshift) jQuery.Shapeshift
+
+[Lodash](https://github.com/lodash/lodash) Lodash
 
 [Bower](http://bower.io/) Package manager for the web
 
