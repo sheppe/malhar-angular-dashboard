@@ -63,7 +63,8 @@ Requirements
 - Underscore.js
 - jQuery
 - jQuery UI
-- Angular UI Sortable
+- jQuery-UI-Touch-Punch (optional, for touch support)
+- jQuery.Shapeshift
 
 Example of including dependencies from CDN [here](demo/index.html)
 
