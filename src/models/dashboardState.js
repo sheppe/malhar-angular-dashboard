@@ -168,7 +168,7 @@ angular.module('ui.dashboard')
         promise.then(
           // success
           function(res) {
-            var result = self._handleSyncLoad(res);
+              var result = res[0].data ? self._handleSyncLoad(res[0].data) : self._handleSyncLoad(res);
             if (result) {
               deferred.resolve(result);
             } else {

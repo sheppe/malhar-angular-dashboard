@@ -858,7 +858,7 @@ angular.module('ui.dashboard')
         promise.then(
           // success
           function(res) {
-            var result = self._handleSyncLoad(res);
+            var result = res[0].data ? self._handleSyncLoad(res[0].data) : self._handleSyncLoad(res);
             if (result) {
               deferred.resolve(result);
             } else {
@@ -1590,7 +1590,7 @@ angular.module("ui.dashboard").run(["$templateCache", function($templateCache) {
     "\n" +
     "    <div class=\"btn-toolbar\" ng-if=\"!options.hideToolbar\">\r" +
     "\n" +
-    "        <div class=\"btn-group\" ng-if=\"!options.widgetButtons\">\r" +
+    "        <!--<div class=\"btn-group\" ng-if=\"!options.widgetButtons\">\r" +
     "\n" +
     "            <button type=\"button\" class=\"dropdown-toggle btn btn-primary\" data-toggle=\"dropdown\">Add Widget <span\r" +
     "\n" +
@@ -1606,7 +1606,7 @@ angular.module("ui.dashboard").run(["$templateCache", function($templateCache) {
     "\n" +
     "            </ul>\r" +
     "\n" +
-    "        </div>\r" +
+    "        </div>-->\r" +
     "\n" +
     "\r" +
     "\n" +
@@ -1620,19 +1620,21 @@ angular.module("ui.dashboard").run(["$templateCache", function($templateCache) {
     "\n" +
     "            </button>\r" +
     "\n" +
+    "\r" +
+    "\n" +
+    "            <button class=\"btn btn-warning\" ng-click=\"resetWidgetsToDefault()\">Default Widgets</button>\r" +
+    "\n" +
+    "\r" +
+    "\n" +
+    "            <button ng-if=\"options.storage && options.explicitSave\" ng-click=\"options.saveDashboard()\" class=\"btn btn-success\" ng-disabled=\"!options.unsavedChangeCount\">{{ !options.unsavedChangeCount ? \"all saved\" : \"save changes (\" + options.unsavedChangeCount + \")\" }}</button>\r" +
+    "\n" +
+    "\r" +
+    "\n" +
+    "            <button ng-click=\"clear();\" type=\"button\" class=\"btn btn-info\">Clear</button>\r" +
+    "\n" +
     "        </div>\r" +
     "\n" +
     "\r" +
-    "\n" +
-    "        <button class=\"btn btn-warning\" ng-click=\"resetWidgetsToDefault()\">Default Widgets</button>\r" +
-    "\n" +
-    "\r" +
-    "\n" +
-    "        <button ng-if=\"options.storage && options.explicitSave\" ng-click=\"options.saveDashboard()\" class=\"btn btn-success\" ng-disabled=\"!options.unsavedChangeCount\">{{ !options.unsavedChangeCount ? \"all saved\" : \"save changes (\" + options.unsavedChangeCount + \")\" }}</button>\r" +
-    "\n" +
-    "\r" +
-    "\n" +
-    "        <button ng-click=\"clear();\" type=\"button\" class=\"btn btn-info\">Clear</button>\r" +
     "\n" +
     "    </div>\r" +
     "\n" +
