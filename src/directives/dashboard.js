@@ -219,37 +219,44 @@ angular.module('ui.dashboard')
                     scope.saveDashboard();
                 };
 
-                // Set default widgets array
-                var savedWidgetDefs = scope.dashboardState.load();
+                scope.loadDashboard = function(){
+                    // Update the storageId in case it's changed between loads.
+                    scope.dashboardState.id = scope.options.storageId;
 
-                // Success handler
-                function handleStateLoad(saved) {
-                    scope.options.unsavedChangeCount = 0;
-                    if (saved && saved.length) {
-                        scope.loadWidgets(saved);
-                    } else if (scope.defaultWidgets) {
-                        scope.loadWidgets(scope.defaultWidgets);
-                    } else {
-                        scope.clear(true);
+                    var savedWidgetDefs = scope.dashboardState.load();
+
+                    if (savedWidgetDefs instanceof Array) {
+                        handleStateLoad(savedWidgetDefs);
                     }
-                }
+                    else if (savedWidgetDefs && typeof savedWidgetDefs === 'object' && typeof savedWidgetDefs.then === 'function') {
+                        savedWidgetDefs.then(handleStateLoad, handleStateLoad);
+                    }
+                    else {
+                        handleStateLoad();
+                    }
 
-                if (savedWidgetDefs instanceof Array) {
-                    handleStateLoad(savedWidgetDefs);
-                }
-                else if (savedWidgetDefs && typeof savedWidgetDefs === 'object' && typeof savedWidgetDefs.then === 'function') {
-                    savedWidgetDefs.then(handleStateLoad, handleStateLoad);
-                }
-                else {
-                    handleStateLoad();
-                }
+                    // Success handler
+                    function handleStateLoad(saved) {
+                        scope.options.unsavedChangeCount = 0;
+                        if (saved && saved.length) {
+                            scope.loadWidgets(saved);
+                        } else if (scope.defaultWidgets) {
+                            scope.loadWidgets(scope.defaultWidgets);
+                        } else {
+                            scope.clear(true);
+                        }
+                    }
+                };
+
+                // Set default widgets array
+                scope.loadDashboard();
 
                 // expose functionality externally
                 // functions are appended to the provided dashboard options
                 scope.options.addWidget = scope.addWidget;
                 scope.options.loadWidgets = scope.loadWidgets;
                 scope.options.saveDashboard = scope.externalSaveDashboard;
-
+                scope.options.loadDashboard = scope.loadDashboard;
 
                 // save state
                 scope.$on('widgetChanged', function (event) {
