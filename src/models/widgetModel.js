@@ -32,8 +32,9 @@ angular.module('ui.dashboard')
             };
             overrides = overrides || {};
             angular.extend(this, angular.copy(defaults), overrides);
-            this.style = this.style || { width: '33%' };
-            this.setWidth(this.style.width);
+            this.style = this.style || { width: '33%', height: '240px' };
+            this.setWidth(this.style.width || '33%');
+            this.setHeight(this.style.height || '240px');
 
             if (Class.templateUrl) {
                 this.templateUrl = Class.templateUrl;
@@ -62,6 +63,25 @@ angular.module('ui.dashboard')
                     width = Math.max(0, width);
                 }
                 this.style.width = width + '' + units;
+
+                return true;
+            },
+            // sets the height (and widthUnits)
+            setHeight: function (height, units) {
+                height = height.toString();
+                units = units || height.replace(/^[-\.\d]+/, '') || 'px';
+                this.heightUnits = units;
+                height = parseFloat(height);
+
+                if (height < 0) {
+                    return false;
+                }
+
+                if (units === '%') {
+                    height = Math.min(100, height);
+                    height = Math.max(0, height);
+                }
+                this.style.height = height + '' + units;
 
                 return true;
             }

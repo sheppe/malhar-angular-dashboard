@@ -132,6 +132,65 @@ angular.module('ui.dashboard')
             jQuery($window).on('mousemove', mousemove).one('mouseup', mouseup);
         };
 
+        $scope.grabVertResizer = function (e) {
+
+            var widget = $scope.widget;
+            var widgetElm = $element.find('.widget');
+
+            // ignore middle- and right-click
+            if (e.which !== 1) {
+                return;
+            }
+
+            e.stopPropagation();
+            e.originalEvent.preventDefault();
+
+            // get the starting vertical position
+            var initY = e.clientY;
+
+            // Get the current width of the widget and dashboard
+            var pixelWidth = widgetElm.width();
+            var pixelHeight = widgetElm.height();
+            var widgetStyleHeight = widget.style.height;
+            var heightUnits = widget.heightUnits;
+            var unitHeight = parseFloat(widgetStyleHeight);
+
+            // create marquee element for resize action
+            var $marquee = angular.element('<div class="widget-resizer-marquee" style="height: ' + pixelHeight + 'px; width: ' + pixelWidth + 'px;"></div>');
+            widgetElm.append($marquee);
+
+            // determine the unit/pixel ratio
+            var transformMultiplier = unitHeight / pixelHeight;
+
+            // updates marquee with preview of new width
+            var mousemove = function (e) {
+                var curY = e.clientY;
+                var pixelChange = curY - initY;
+                var newHeight = pixelHeight + pixelChange;
+                $marquee.css('height', newHeight + 'px');
+            };
+
+            // sets new widget height on mouseup
+            var mouseup = function (e) {
+                // remove listener and marquee
+                jQuery($window).off('mousemove', mousemove);
+                $marquee.remove();
+
+                // calculate change in units
+                var curY = e.clientY;
+                var pixelChange = curY - initY;
+                var unitChange = Math.round(pixelChange * transformMultiplier * 100) / 100;
+
+                // add to initial unit width
+                var newHeight = unitHeight * 1 + unitChange;
+                widget.setHeight(newHeight + heightUnits);
+                $scope.$emit('widgetChanged', widget);
+                $scope.$apply();
+            };
+
+            jQuery($window).on('mousemove', mousemove).one('mouseup', mouseup);
+        };
+
         // replaces widget title with input
         $scope.editTitle = function (widget) {
             var widgetElm = $element.find('.widget');

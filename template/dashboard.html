@@ -25,7 +25,7 @@
 
     </div>
 
-    <div ui-shapeshift="sortableOptions" ng-model="widgets" class="dashboard-widget-area">
+    <div id="dashboard" ui-shapeshift="sortableOptions" ng-model="widgets" class="dashboard-widget-area">
         <div ng-repeat="widget in widgets" ng-style="widget.style" class="widget-container" widget>
             <div class="widget panel panel-default">
                 <div class="widget-header panel-heading">
@@ -34,13 +34,13 @@
                         <form action="" class="widget-title" ng-show="widget.editingTitle" ng-submit="saveTitleEdit(widget)">
                             <input type="text" ng-model="widget.title" class="form-control">
                         </form>
-                        <span class="label label-primary" ng-if="!options.hideWidgetName">{{widget.name}}</span>
                         <span ng-click="removeWidget(widget);" class="glyphicon glyphicon-remove" ng-if="!options.hideWidgetClose"></span>
                         <span ng-click="openWidgetDialog(widget);" class="glyphicon glyphicon-cog" ng-if="!options.hideWidgetOptions"></span>
                     </h3>
                 </div>
                 <div class="panel-body widget-content"></div>
                 <div class="widget-ew-resizer" ng-mousedown="grabResizer($event)"></div>
+                <div class="widget-ns-resizer" ng-mousedown="grabVertResizer($event)"></div>
             </div>
         </div>
     </div>

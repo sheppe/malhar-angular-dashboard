@@ -36,8 +36,7 @@ angular.module('ui.dashboard')
                 });
             }],
             link: function (scope, element, attrs) {
-
-                // default options
+                // default dashboard options
                 var defaults = {
                     stringifyStorage: true
                 };
@@ -86,6 +85,13 @@ angular.module('ui.dashboard')
 
                     // Deep extend a new object for instantiation
                     widgetToInstantiate = jQuery.extend(true, {}, defaultWidgetDefinition, widgetToInstantiate);
+
+                    // Make sure there's a dataModelOptions value, even if it's an empty array.
+                    if(!widgetToInstantiate.dataModelOptions && widgetToInstantiate.dataUrl){
+                        widgetToInstantiate.dataModelOptions = {
+                            dataUrl: widgetToInstantiate.dataUrl
+                        };
+                    }
 
                     // Instantiation
                     var widget = new WidgetModel(widgetToInstantiate, {
@@ -248,8 +254,10 @@ angular.module('ui.dashboard')
                     }
                 };
 
+                //*** Commented out the below to force manual loading of dashboards. The automatic loading
+                //*** was causing issues in some cases.
                 // Set default widgets array
-                scope.loadDashboard();
+                //scope.loadDashboard();
 
                 // expose functionality externally
                 // functions are appended to the provided dashboard options
@@ -257,10 +265,12 @@ angular.module('ui.dashboard')
                 scope.options.loadWidgets = scope.loadWidgets;
                 scope.options.saveDashboard = scope.externalSaveDashboard;
                 scope.options.loadDashboard = scope.loadDashboard;
+                scope.options.clear = scope.clear;
 
                 // save state
                 scope.$on('widgetChanged', function (event) {
                     event.stopPropagation();
+                    $(window).trigger('resize');
                     scope.saveDashboard();
                 });
             }
