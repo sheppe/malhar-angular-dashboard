@@ -87,9 +87,11 @@ angular.module('ui.dashboard')
                     widgetToInstantiate = jQuery.extend(true, {}, defaultWidgetDefinition, widgetToInstantiate);
 
                     // Make sure there's a dataModelOptions value, even if it's an empty array.
-                    if(!widgetToInstantiate.dataModelOptions && widgetToInstantiate.dataUrl){
+                    /*** Widget-specific data values must be added to the dataModelOptions hash, as coded below ***/
+                    if(!widgetToInstantiate.dataModelOptions && (widgetToInstantiate.dataUrl || widgetToInstantiate.dataTime)){
                         widgetToInstantiate.dataModelOptions = {
-                            dataUrl: widgetToInstantiate.dataUrl
+                            dataUrl: widgetToInstantiate.dataUrl,
+                            dataTime: widgetToInstantiate.dataTime
                         };
                     }
 
