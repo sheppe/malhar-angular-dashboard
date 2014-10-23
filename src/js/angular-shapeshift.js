@@ -30,6 +30,9 @@ angular.module('shapeshift', [])
     // The options should be passed in as an array.
     .value('shapeshiftConfig', {})
 
+    // Used for storing the ID of the shapeshift hosting container.
+    .value('shapeshiftHostId', 'dashboard')
+
     // The shapeshiftTriggers service provides access to the various events that can be triggered on
     // the shapeshift container provided in the element parameter.
     .service('shapeshiftTriggers', function(){
@@ -46,10 +49,16 @@ angular.module('shapeshift', [])
         };
     })
 
+    .service('shapeshift', function(){
+        this.shapeshiftElement = function(element, shapeshiftOptions){
+            $(element).shapeshift(shapeshiftOptions);
+        };
+    })
+
     .directive('uiShapeshift', [
-        'shapeshiftConfig', 'shapeshiftTriggers',
+        'shapeshiftConfig', 'shapeshiftHostId', 'shapeshiftTriggers', 'shapeshift',
         '$rootScope', '$timeout', '$log',
-        function(shapeshiftConfig, shapeshiftTriggers, $rootScope, $timeout, $log){
+        function(shapeshiftConfig, shapeshiftHostId, shapeshiftTriggers, shapeshift, $rootScope, $timeout, $log){
             return{
                 require: '?ngModel',
                 restrict: 'A',
@@ -65,13 +74,16 @@ angular.module('shapeshift', [])
 
                     // Make the .shapeshift() call on the current element.
                     var shapeShift = function(){
-                        $(element).shapeshift(ssConfig);
+                        shapeshift.shapeshiftElement(element, ssConfig); //$(element).shapeshift(ssConfig);
                     };
 
                     // Put the configuration options into the ssConfig variable.
                     // Configuration options can be passed in either via assigning them to the ui-shapeshift
                     // attribute in the HTML, or by setting the shapeshiftConfig value.
                     angular.extend(ssConfig, shapeshiftConfig, scope.$eval(attrs.uiShapeshift));
+
+                    // Set the ID of the element we're attaching to, if it's not already set.
+                    element.context.id = element.context.id || shapeshiftHostId;
 
                     if (!angular.element.fn || !angular.element.fn.jquery) {
                         $log.error('Angular Shapeshift: jQuery should be included before AngularJS!');

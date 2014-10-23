@@ -1122,7 +1122,7 @@ angular.module('ui.dashboard')
 'use strict';
 
 angular.module('ui.dashboard')
-    .controller('DashboardWidgetCtrl', ['$scope', '$element', '$compile', '$window', '$timeout', function($scope, $element, $compile, $window, $timeout) {
+    .controller('DashboardWidgetCtrl', ['$scope', '$element', '$compile', '$window', '$timeout', 'shapeshift', 'shapeshiftHostId', 'shapeshiftConfig', function($scope, $element, $compile, $window, $timeout, shapeshift, shapeshiftHostId, shapeshiftConfig) {
 
         // Fills "container" with compiled view
         $scope.makeTemplateString = function() {
@@ -1230,8 +1230,14 @@ angular.module('ui.dashboard')
                 // add to initial unit width
                 var newWidth = unitWidth * 1 + unitChange;
                 widget.setWidth(newWidth + widthUnits);
+
                 $scope.$emit('widgetChanged', widget);
+                $scope.$broadcast('widgetResized', $element);
                 $scope.$apply();
+
+                // Trigger an arrange of the shapeshift grid, in case the user made a widget larger than fits
+                // in a single column.
+                shapeshift.shapeshiftElement("#" + ($($element.parent()).attr('id') ? $($element.parent()).attr('id') : shapeshiftHostId).toString(), shapeshiftConfig);
             };
 
             jQuery($window).on('mousemove', mousemove).one('mouseup', mouseup);
@@ -1289,8 +1295,14 @@ angular.module('ui.dashboard')
                 // add to initial unit width
                 var newHeight = unitHeight * 1 + unitChange;
                 widget.setHeight(newHeight + heightUnits);
+
                 $scope.$emit('widgetChanged', widget);
+                $scope.$broadcast('widgetResized', $element);
                 $scope.$apply();
+
+                // Trigger an arrange of the shapeshift grid, in case the user made a widget larger than fits
+                // in a single column.
+                shapeshift.shapeshiftElement("#" + ($($element.parent()).attr('id') ? $($element.parent()).attr('id') : shapeshiftHostId).toString(), shapeshiftConfig);
             };
 
             jQuery($window).on('mousemove', mousemove).one('mouseup', mouseup);
@@ -1398,6 +1410,9 @@ angular.module('shapeshift', [])
     // The options should be passed in as an array.
     .value('shapeshiftConfig', {})
 
+    // Used for storing the ID of the shapeshift hosting container.
+    .value('shapeshiftHostId', 'dashboard')
+
     // The shapeshiftTriggers service provides access to the various events that can be triggered on
     // the shapeshift container provided in the element parameter.
     .service('shapeshiftTriggers', function(){
@@ -1414,10 +1429,16 @@ angular.module('shapeshift', [])
         };
     })
 
+    .service('shapeshift', function(){
+        this.shapeshiftElement = function(element, shapeshiftOptions){
+            $(element).shapeshift(shapeshiftOptions);
+        };
+    })
+
     .directive('uiShapeshift', [
-        'shapeshiftConfig', 'shapeshiftTriggers',
+        'shapeshiftConfig', 'shapeshiftHostId', 'shapeshiftTriggers', 'shapeshift',
         '$rootScope', '$timeout', '$log',
-        function(shapeshiftConfig, shapeshiftTriggers, $rootScope, $timeout, $log){
+        function(shapeshiftConfig, shapeshiftHostId, shapeshiftTriggers, shapeshift, $rootScope, $timeout, $log){
             return{
                 require: '?ngModel',
                 restrict: 'A',
@@ -1433,13 +1454,16 @@ angular.module('shapeshift', [])
 
                     // Make the .shapeshift() call on the current element.
                     var shapeShift = function(){
-                        $(element).shapeshift(ssConfig);
+                        shapeshift.shapeshiftElement(element, ssConfig); //$(element).shapeshift(ssConfig);
                     };
 
                     // Put the configuration options into the ssConfig variable.
                     // Configuration options can be passed in either via assigning them to the ui-shapeshift
                     // attribute in the HTML, or by setting the shapeshiftConfig value.
                     angular.extend(ssConfig, shapeshiftConfig, scope.$eval(attrs.uiShapeshift));
+
+                    // Set the ID of the element we're attaching to, if it's not already set.
+                    element.context.id = element.context.id || shapeshiftHostId;
 
                     if (!angular.element.fn || !angular.element.fn.jquery) {
                         $log.error('Angular Shapeshift: jQuery should be included before AngularJS!');

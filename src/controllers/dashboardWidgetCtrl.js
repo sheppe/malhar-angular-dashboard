@@ -17,7 +17,7 @@
 'use strict';
 
 angular.module('ui.dashboard')
-    .controller('DashboardWidgetCtrl', ['$scope', '$element', '$compile', '$window', '$timeout', function($scope, $element, $compile, $window, $timeout) {
+    .controller('DashboardWidgetCtrl', ['$scope', '$element', '$compile', '$window', '$timeout', 'shapeshift', 'shapeshiftHostId', 'shapeshiftConfig', function($scope, $element, $compile, $window, $timeout, shapeshift, shapeshiftHostId, shapeshiftConfig) {
 
         // Fills "container" with compiled view
         $scope.makeTemplateString = function() {
@@ -125,8 +125,14 @@ angular.module('ui.dashboard')
                 // add to initial unit width
                 var newWidth = unitWidth * 1 + unitChange;
                 widget.setWidth(newWidth + widthUnits);
+
                 $scope.$emit('widgetChanged', widget);
+                $scope.$broadcast('widgetResized', $element);
                 $scope.$apply();
+
+                // Trigger an arrange of the shapeshift grid, in case the user made a widget larger than fits
+                // in a single column.
+                shapeshift.shapeshiftElement("#" + ($($element.parent()).attr('id') ? $($element.parent()).attr('id') : shapeshiftHostId).toString(), shapeshiftConfig);
             };
 
             jQuery($window).on('mousemove', mousemove).one('mouseup', mouseup);
@@ -184,8 +190,14 @@ angular.module('ui.dashboard')
                 // add to initial unit width
                 var newHeight = unitHeight * 1 + unitChange;
                 widget.setHeight(newHeight + heightUnits);
+
                 $scope.$emit('widgetChanged', widget);
+                $scope.$broadcast('widgetResized', $element);
                 $scope.$apply();
+
+                // Trigger an arrange of the shapeshift grid, in case the user made a widget larger than fits
+                // in a single column.
+                shapeshift.shapeshiftElement("#" + ($($element.parent()).attr('id') ? $($element.parent()).attr('id') : shapeshiftHostId).toString(), shapeshiftConfig);
             };
 
             jQuery($window).on('mousemove', mousemove).one('mouseup', mouseup);
