@@ -145,6 +145,8 @@ angular.module('ui.dashboard')
                             console.log('widget dialog closed');
                             console.log('result: ', result);
                             widget.title = result.title;
+                            widget.refreshInterval = result.refreshInterval;
+
                             //AW Persist title change from options editor
                             scope.$emit('widgetChanged', widget);
                         },
@@ -756,6 +758,7 @@ angular.module('ui.dashboard')
             style: widget.style,
             dataModelOptions: widget.dataModelOptions,
             storageHash: widget.storageHash,
+            refreshInterval: widget.refreshInterval,
             attrs: widget.attrs
           };
 
@@ -923,6 +926,7 @@ angular.module('ui.dashboard')
       setup: function (widget, scope) {
         this.dataAttrName = widget.dataAttrName;
         this.dataModelOptions = widget.dataModelOptions;
+        this.refreshInterval = widget.refreshInterval;
         this.widgetScope = scope;
       },
 
@@ -1010,7 +1014,8 @@ angular.module('ui.dashboard')
                 dataModelType: Class.dataModelType,
                 //AW Need deep copy of options to support widget options editing
                 dataModelOptions: Class.dataModelOptions,
-                style: Class.style
+                style: Class.style,
+                refreshInterval: Class.refreshInterval
             };
             overrides = overrides || {};
             angular.extend(this, angular.copy(defaults), overrides);
@@ -1358,26 +1363,68 @@ angular.module('ui.dashboard')
 'use strict';
 
 angular.module('ui.dashboard')
-  .controller('WidgetDialogCtrl', ['$scope', '$modalInstance', 'widget', 'optionsTemplateUrl', function ($scope, $modalInstance, widget, optionsTemplateUrl) {
-    // add widget to scope
-    $scope.widget = widget;
+    .controller('WidgetDialogCtrl', ['$scope', '$modalInstance', 'widget', 'optionsTemplateUrl', function ($scope, $modalInstance, widget, optionsTemplateUrl) {
+      // add widget to scope
+      $scope.widget = widget;
 
-    // set up result object
-    $scope.result = {
-      title: widget.title
-    };
+      // set up result object
+      $scope.result = {
+        title: widget.title,
+        refreshInterval: widget.refreshInterval
+      };
 
-    // look for optionsTemplateUrl on widget
-    $scope.optionsTemplateUrl = optionsTemplateUrl || 'template/widget-default-content.html';
+      // Intervals are stored in milliseconds, but we're presenting them to the user in minutes. Convert the value.
+      var currentInterval = $scope.result.refreshInterval / 60 / 1000;
+      var validIntervals = [0,1,5,10,15,30,60,360,720];
 
-    $scope.ok = function () {
-      $modalInstance.close($scope.result);
-    };
+      // For setting the widget's refresh interval.
+      $scope.refresh = {
+        // Index of selected fresh interval.
+        interval: _.indexOf(validIntervals, currentInterval),
+        // Valid refresh intervals (in minutes).
+        intervals: validIntervals,
+        intervalsMax: validIntervals.length - 1
+      };
 
-    $scope.cancel = function () {
-      $modalInstance.dismiss('cancel');
-    };
-  }]);
+      // Used for setting friendly display of the refresh interval selected by the user.
+      $scope.translateRefreshIntervals = function(value){
+        if($scope.refresh.intervals[value] == 0){
+          return 'Never';
+        }
+        else if($scope.refresh.intervals[value] == 1){
+          return $scope.refresh.intervals[value].toString() + ' minute';
+        }
+        else if($scope.refresh.intervals[value] > 1 && $scope.refresh.intervals[value] <= 60) {
+          return $scope.refresh.intervals[value].toString() + ' minutes';
+        }
+        else if($scope.refresh.intervals[value] == 60){
+          return ($scope.refresh.intervals[value] / 60).toString() + ' hour'
+        }
+        else if($scope.refresh.intervals[value] > 60){
+          return ($scope.refresh.intervals[value] / 60).toString() + ' hours'
+        }
+      };
+
+      // look for optionsTemplateUrl on widget
+      $scope.optionsTemplateUrl = optionsTemplateUrl || 'template/widget-default-content.html';
+
+      $scope.ok = function () {
+        $modalInstance.close($scope.result);
+      };
+
+      $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+      };
+
+      // Watch for when the user changes the refresh interval.
+      $scope.$watch('refresh.interval', function(newVal, oldVal){
+        if(newVal != oldVal){
+          // The user is selecting minutes, but the timer is in milliseconds, so convert.
+          $scope.result.refreshInterval = $scope.refresh.intervals[newVal] * 60 * 1000;
+        }
+      });
+
+    }]);
 /**
  * Created by Sheppe Pharis, June 2014.
  *
@@ -1821,6 +1868,8 @@ angular.module("ui.dashboard").run(["$templateCache", function($templateCache) {
     "\n" +
     "                        </form>\r" +
     "\n" +
+    "                        <span ng-show=\"widget.refreshInterval && widget.refreshInterval > 0\" class=\"widget-title\"><small> - {{widget.refreshInterval / 60 / 1000}} minute refresh</small></span>\r" +
+    "\n" +
     "                        <span ng-click=\"removeWidget(widget);\" class=\"glyphicon glyphicon-remove\" ng-if=\"!options.hideWidgetClose\"></span>\r" +
     "\n" +
     "                        <span ng-click=\"openWidgetDialog(widget);\" class=\"glyphicon glyphicon-cog\" ng-if=\"!options.hideWidgetOptions\"></span>\r" +
@@ -1877,6 +1926,14 @@ angular.module("ui.dashboard").run(["$templateCache", function($templateCache) {
   );
 
   $templateCache.put("template/widget-template.html",
+    "<style xmlns=\"http://www.w3.org/1999/html\" xmlns=\"http://www.w3.org/1999/html\">\r" +
+    "\n" +
+    "    select{margin: 8px 25px; padding: 2px 10px;}\r" +
+    "\n" +
+    "    input{margin: 8px auto;}\r" +
+    "\n" +
+    "</style>\r" +
+    "\n" +
     "<div class=\"modal-header\">\r" +
     "\n" +
     "    <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\" ng-click=\"cancel()\">&times;</button>\r" +
@@ -1887,25 +1944,27 @@ angular.module("ui.dashboard").run(["$templateCache", function($templateCache) {
     "\n" +
     "\r" +
     "\n" +
-    "<div class=\"modal-body\">\r" +
+    "<div class=\"modal-body row\">\r" +
     "\n" +
-    "    <form name=\"form\" novalidate class=\"form-horizontal\">\r" +
+    "    <div class=\"col-md-12\">\r" +
     "\n" +
-    "        <div class=\"form-group\">\r" +
+    "        <label for=\"widgetTitle\" class=\"col-sm-2 control-label\">Title</label>\r" +
     "\n" +
-    "            <label for=\"widgetTitle\" class=\"col-sm-2 control-label\">Title</label>\r" +
+    "        <input id=\"widgetTitle\" type=\"text\" class=\"form-control\" name=\"widgetTitle\" ng-model=\"result.title\">\r" +
     "\n" +
-    "            <div class=\"col-sm-10\">\r" +
+    "    </div>\r" +
     "\n" +
-    "                <input type=\"text\" class=\"form-control\" name=\"widgetTitle\" ng-model=\"result.title\">\r" +
+    "    <div id=\"refresh\" class=\"col-md-12\" style=\"padding-top: 8px\" ng-show=\"result.refreshInterval!=null\">\r" +
     "\n" +
-    "            </div>\r" +
+    "        <label for=\"widgetRefreshInterval\">How often do you want the widget to refresh?</label>\r" +
     "\n" +
-    "        </div>\r" +
+    "        <rzslider id=\"widgetRefreshInterval\" rz-slider-model=\"refresh.interval\" rz-slider-floor=\"0\" rz-slider-ceil=\"refresh.intervalsMax\" rz-slider-translate=\"translateRefreshIntervals\"></rzslider>\r" +
     "\n" +
-    "        <div ng-include=\"optionsTemplateUrl\"></div>\r" +
+    "    </div>\r" +
     "\n" +
-    "    </form>\r" +
+    "\r" +
+    "\n" +
+    "    <div ng-include=\"optionsTemplateUrl\"></div>\r" +
     "\n" +
     "</div>\r" +
     "\n" +
@@ -1913,9 +1972,9 @@ angular.module("ui.dashboard").run(["$templateCache", function($templateCache) {
     "\n" +
     "<div class=\"modal-footer\">\r" +
     "\n" +
-    "    <button type=\"button\" class=\"btn btn-default\" ng-click=\"cancel()\">Cancel</button>\r" +
-    "\n" +
     "    <button type=\"button\" class=\"btn btn-primary\" ng-click=\"ok()\">OK</button>\r" +
+    "\n" +
+    "    <button type=\"button\" class=\"btn btn-warning\" ng-click=\"cancel()\">Cancel</button>\r" +
     "\n" +
     "</div>"
   );

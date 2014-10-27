@@ -1,21 +1,26 @@
+<style xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
+    select{margin: 8px 25px; padding: 2px 10px;}
+    input{margin: 8px auto;}
+</style>
 <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-click="cancel()">&times;</button>
   <h3>Widget Options <small>{{widget.title}}</small></h3>
 </div>
 
-<div class="modal-body">
-    <form name="form" novalidate class="form-horizontal">
-        <div class="form-group">
-            <label for="widgetTitle" class="col-sm-2 control-label">Title</label>
-            <div class="col-sm-10">
-                <input type="text" class="form-control" name="widgetTitle" ng-model="result.title">
-            </div>
-        </div>
-        <div ng-include="optionsTemplateUrl"></div>
-    </form>
+<div class="modal-body row">
+    <div class="col-md-12">
+        <label for="widgetTitle" class="col-sm-2 control-label">Title</label>
+        <input id="widgetTitle" type="text" class="form-control" name="widgetTitle" ng-model="result.title">
+    </div>
+    <div id="refresh" class="col-md-12" style="padding-top: 8px" ng-show="result.refreshInterval!=null">
+        <label for="widgetRefreshInterval">How often do you want the widget to refresh?</label>
+        <rzslider id="widgetRefreshInterval" rz-slider-model="refresh.interval" rz-slider-floor="0" rz-slider-ceil="refresh.intervalsMax" rz-slider-translate="translateRefreshIntervals"></rzslider>
+    </div>
+
+    <div ng-include="optionsTemplateUrl"></div>
 </div>
 
 <div class="modal-footer">
-    <button type="button" class="btn btn-default" ng-click="cancel()">Cancel</button>
     <button type="button" class="btn btn-primary" ng-click="ok()">OK</button>
+    <button type="button" class="btn btn-warning" ng-click="cancel()">Cancel</button>
 </div>

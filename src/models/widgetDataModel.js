@@ -25,6 +25,7 @@ angular.module('ui.dashboard')
       setup: function (widget, scope) {
         this.dataAttrName = widget.dataAttrName;
         this.dataModelOptions = widget.dataModelOptions;
+        this.refreshInterval = widget.refreshInterval;
         this.widgetScope = scope;
       },
 

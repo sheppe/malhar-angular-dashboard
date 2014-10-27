@@ -47,6 +47,7 @@ angular.module('ui.dashboard')
             style: widget.style,
             dataModelOptions: widget.dataModelOptions,
             storageHash: widget.storageHash,
+            refreshInterval: widget.refreshInterval,
             attrs: widget.attrs
           };
 

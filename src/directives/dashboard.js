@@ -145,6 +145,8 @@ angular.module('ui.dashboard')
                             console.log('widget dialog closed');
                             console.log('result: ', result);
                             widget.title = result.title;
+                            widget.refreshInterval = result.refreshInterval;
+
                             //AW Persist title change from options editor
                             scope.$emit('widgetChanged', widget);
                         },
