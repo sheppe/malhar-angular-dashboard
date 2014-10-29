@@ -273,8 +273,6 @@ angular.module('ui.dashboard')
 
                 // save state
                 scope.$on('widgetChanged', function (event) {
-                    event.stopPropagation();
-                    $(window).trigger('resize');
                     scope.saveDashboard();
                 });
             }
@@ -1240,9 +1238,12 @@ angular.module('ui.dashboard')
                 $scope.$broadcast('widgetResized', $element);
                 $scope.$apply();
 
-                // Trigger an arrange of the shapeshift grid, in case the user made a widget larger than fits
-                // in a single column.
-                shapeshift.shapeshiftElement("#" + ($($element.parent()).attr('id') ? $($element.parent()).attr('id') : shapeshiftHostId).toString(), shapeshiftConfig);
+                $timeout(function(){
+                    // Trigger an arrange of the shapeshift grid, in case the user made a widget larger than fits
+                    // in a single column.
+                    shapeshift.calcColumns("#" + ($($element.parent()).attr('id') ? $($element.parent()).attr('id') : shapeshiftHostId).toString(), shapeshiftConfig);
+                    shapeshift.shapeshiftElement("#" + ($($element.parent()).attr('id') ? $($element.parent()).attr('id') : shapeshiftHostId).toString(), shapeshiftConfig);
+                });
             };
 
             jQuery($window).on('mousemove', mousemove).one('mouseup', mouseup);
@@ -1305,9 +1306,12 @@ angular.module('ui.dashboard')
                 $scope.$broadcast('widgetResized', $element);
                 $scope.$apply();
 
-                // Trigger an arrange of the shapeshift grid, in case the user made a widget larger than fits
-                // in a single column.
-                shapeshift.shapeshiftElement("#" + ($($element.parent()).attr('id') ? $($element.parent()).attr('id') : shapeshiftHostId).toString(), shapeshiftConfig);
+                $timeout(function(){
+                    // Trigger an arrange of the shapeshift grid, in case the user made a widget larger than fits
+                    // in a single column.
+                    shapeshift.calcColumns("#" + ($($element.parent()).attr('id') ? $($element.parent()).attr('id') : shapeshiftHostId).toString(), shapeshiftConfig);
+                    shapeshift.shapeshiftElement("#" + ($($element.parent()).attr('id') ? $($element.parent()).attr('id') : shapeshiftHostId).toString(), shapeshiftConfig);
+                });
             };
 
             jQuery($window).on('mousemove', mousemove).one('mouseup', mouseup);
@@ -1477,6 +1481,80 @@ angular.module('shapeshift', [])
     })
 
     .service('shapeshift', function(){
+        this.storeItemIds = function(element, items){
+            // A counter.
+            var x = 0;
+
+            $(element).children().each(function(){
+                var c = $(this);
+
+                // Associate the $$hashKey of each item in the ngModel array with the corresponding child
+                // in this container. This will allow us to reposition the items in the ngModel array later
+                // by comparing the $$hashKey attribute with the value associate with the child.
+                c.attr('ss-key', items.$modelValue[x].$$hashKey);
+
+                x++;
+            });
+        };
+
+        this.calcColumns = function(element){
+            // A counter.
+            var x = 0;
+
+            // For tracking the width of the child controls.
+            var w = 0;
+            var smallest = 0;
+
+            // For tracking the largest number of columns we're using.
+            var cols = 1;
+
+            $(element).children().each(function(){
+                var c = $(this);
+                // Initialize the smallest child variable to the first item.
+                if(x === 0){
+                    smallest = parseInt(c.width());
+                }
+
+                // The width of the current child.
+                w = parseInt(c.width());
+
+                // Record the width of the smallest item, as it is what is used to determine the width
+                // of a 1 span cell in the grid.
+                if(w < smallest){
+                    smallest = w;
+                }
+
+                x++;
+            });
+
+            $(element).children().each(function(){
+                var c = $(this);
+                // The data-ss-colspan attribute is used by Shapeshift to ensure it allocates enough room in its
+                // grid for wider elements.
+
+                // Check the width of this item, and if it's larger than the smallest one then
+                // determine how much larger and set the data-ss-colspan property appropriately.
+                var d = parseInt(c.width()) - smallest;
+
+                if(d === 0){
+                    // The element is the same size as the smallest one.
+                    c.attr('data-ss-colspan', 1);
+                }
+                else{
+                    // Calculate the number of columns to allocate for this child.
+                    d = 1 + Math.round(d / smallest);
+
+                    if(d > cols){
+                        cols = d;
+                    }
+
+                    c.attr('data-ss-colspan', d);
+                }
+            });
+
+            return cols;
+        };
+
         this.shapeshiftElement = function(element, shapeshiftOptions){
             $(element).shapeshift(shapeshiftOptions);
         };
@@ -1498,6 +1576,16 @@ angular.module('shapeshift', [])
                 link: function(scope, element, attrs, ngModel) {
                     // For storing configuration options.
                     var ssConfig = {};
+
+                    // Call the function to store the IDs of each child in the ss-key attribute.
+                    var storeIds = function(){
+                        shapeshift.storeItemIds(element, ngModel);
+                    };
+
+                    // Calculate the number of columns required to display the grid cleanly.
+                    var calcColumns = function(){
+                        return shapeshift.calcColumns(element);
+                    };
 
                     // Make the .shapeshift() call on the current element.
                     var shapeShift = function(){
@@ -1529,73 +1617,12 @@ angular.module('shapeshift', [])
                         scope.$watch(attrs.ngModel + '.length', function () {
                             // Timeout to let ng-repeat modify the DOM.
                             $timeout(function () {
-                                // A counter.
-                                var x = 0;
 
-                                // For tracking the width of the child controls.
-                                var w = 0;
-                                var smallest = 0;
+                                // Store the IDs for each item in the ss-key element of said item.
+                                storeIds();
 
-                                // For tracking the largest number of columns we're using.
-                                var cols = 1;
-
-                                $(element).children().each(function(){
-                                    var c = $(this);
-
-                                    // Associate the $$hashKey of each item in the ngModel array with the corresponding child
-                                    // in this container. This will allow us to reposition the items in the ngModel array later
-                                    // by comparing the $$hashKey attribute with the value associate with the child.
-                                    c.attr('ss-key', ngModel.$modelValue[x].$$hashKey);
-
-                                    // Initialize the smallest child variable to the first item.
-                                    if(x === 0){
-                                        smallest = parseInt(c.width());
-                                    }
-
-                                    // The width of the current child.
-                                    w = parseInt(c.width());
-
-                                    // Record the width of the smallest item, as it is what is used to determine the width
-                                    // of a 1 span cell in the grid.
-                                    if(w < smallest){
-                                        smallest = w;
-                                    }
-
-                                    x++;
-                                });
-
-                                x = 0;
-                                $(element).children().each(function(){
-                                    var c = $(this);
-
-                                    // Make sure there's a data-ss-colspan attribute. This attribute
-                                    // is used by Shapeshift to ensure it allocates enough room in its
-                                    // grid for wider elements.
-
-                                    // Check the width of this item, and if it's larger than the smallest one then
-                                    // determine how much larger and set the data-ss-colspan property appropriately.
-                                    var d = parseInt(c.width()) - smallest;
-
-                                    if(d === 0){
-                                        // The element is the same size as the smallest one.
-                                        c.attr('data-ss-colspan', 1);
-                                    }
-                                    else{
-                                        // Calculate the number of columns to allocate for this child.
-                                        d = 1 + Math.round(d / smallest);
-
-                                        if(d > cols){
-                                            cols = d;
-                                        }
-
-                                        c.attr('data-ss-colspan', d);
-                                    }
-
-                                    x++;
-                                });
-
-                                // Update the minimum number of columns to use in the container.
-                                ssConfig['minColumns'] = cols;
+                                // Calculate the number of columns we'll need.
+                                ssConfig['minColumns'] = calcColumns();
 
                                 // Activate Shapeshift for the container.
                                 shapeShift();

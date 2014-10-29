@@ -273,8 +273,6 @@ angular.module('ui.dashboard')
 
                 // save state
                 scope.$on('widgetChanged', function (event) {
-                    event.stopPropagation();
-                    $(window).trigger('resize');
                     scope.saveDashboard();
                 });
             }

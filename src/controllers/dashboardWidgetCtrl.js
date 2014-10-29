@@ -130,9 +130,12 @@ angular.module('ui.dashboard')
                 $scope.$broadcast('widgetResized', $element);
                 $scope.$apply();
 
-                // Trigger an arrange of the shapeshift grid, in case the user made a widget larger than fits
-                // in a single column.
-                shapeshift.shapeshiftElement("#" + ($($element.parent()).attr('id') ? $($element.parent()).attr('id') : shapeshiftHostId).toString(), shapeshiftConfig);
+                $timeout(function(){
+                    // Trigger an arrange of the shapeshift grid, in case the user made a widget larger than fits
+                    // in a single column.
+                    shapeshift.calcColumns("#" + ($($element.parent()).attr('id') ? $($element.parent()).attr('id') : shapeshiftHostId).toString(), shapeshiftConfig);
+                    shapeshift.shapeshiftElement("#" + ($($element.parent()).attr('id') ? $($element.parent()).attr('id') : shapeshiftHostId).toString(), shapeshiftConfig);
+                });
             };
 
             jQuery($window).on('mousemove', mousemove).one('mouseup', mouseup);
@@ -195,9 +198,12 @@ angular.module('ui.dashboard')
                 $scope.$broadcast('widgetResized', $element);
                 $scope.$apply();
 
-                // Trigger an arrange of the shapeshift grid, in case the user made a widget larger than fits
-                // in a single column.
-                shapeshift.shapeshiftElement("#" + ($($element.parent()).attr('id') ? $($element.parent()).attr('id') : shapeshiftHostId).toString(), shapeshiftConfig);
+                $timeout(function(){
+                    // Trigger an arrange of the shapeshift grid, in case the user made a widget larger than fits
+                    // in a single column.
+                    shapeshift.calcColumns("#" + ($($element.parent()).attr('id') ? $($element.parent()).attr('id') : shapeshiftHostId).toString(), shapeshiftConfig);
+                    shapeshift.shapeshiftElement("#" + ($($element.parent()).attr('id') ? $($element.parent()).attr('id') : shapeshiftHostId).toString(), shapeshiftConfig);
+                });
             };
 
             jQuery($window).on('mousemove', mousemove).one('mouseup', mouseup);
