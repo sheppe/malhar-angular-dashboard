@@ -1367,7 +1367,7 @@ angular.module('ui.dashboard')
 'use strict';
 
 angular.module('ui.dashboard')
-    .controller('WidgetDialogCtrl', ['$scope', '$modalInstance', 'widget', 'optionsTemplateUrl', function ($scope, $modalInstance, widget, optionsTemplateUrl) {
+    .controller('WidgetDialogCtrl', ['$scope', '$modalInstance', '$timeout', 'widget', 'optionsTemplateUrl', function ($scope, $modalInstance, $timeout, widget, optionsTemplateUrl) {
       // add widget to scope
       $scope.widget = widget;
 
@@ -1382,13 +1382,15 @@ angular.module('ui.dashboard')
       var validIntervals = [0,1,5,10,15,30,60,360,720];
 
       // For setting the widget's refresh interval.
-      $scope.refresh = {
-        // Index of selected fresh interval.
-        interval: _.indexOf(validIntervals, currentInterval),
-        // Valid refresh intervals (in minutes).
-        intervals: validIntervals,
-        intervalsMax: validIntervals.length - 1
-      };
+      $timeout(function() {
+        $scope.refresh = {
+          // Index of selected fresh interval.
+          interval: _.indexOf(validIntervals, currentInterval),
+          // Valid refresh intervals (in minutes).
+          intervals: validIntervals,
+          intervalsMax: validIntervals.length - 1
+        };
+      });
 
       // Used for setting friendly display of the refresh interval selected by the user.
       $scope.translateRefreshIntervals = function(value){
